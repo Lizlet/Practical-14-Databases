@@ -29,21 +29,28 @@ Public Class Form1
             'Har ikke lenger bruk for å være tilkoblet til databasen
             connection.Close()
             'En tabell har mange rader. DataRow-objektet kan lagre 1 rad om gangen
-            Dim rad As DataRow
-            Dim personid, fornavn, etternavn As String 'hjelpevariabler
-            'Fyller listeboksen med ønsket informasjon
-            ListBox1.Items.Clear() 'fjerner først eventuell gammel tekst
-            For Each rad In internalTable.Rows
-                personid = rad("id")
-                fornavn = rad("fornavn")
-                etternavn = rad("etternavn")
-                ListBox1.Items.Add(personid & " " & fornavn & " " & etternavn)
-            Next rad
-        Catch feilmelding As MySqlException
+            writeOutput(internalTable)
+        Catch ex As MySqlException
             Console.WriteLine("Feil ved tilkobling til databasen: " &
-            feilmelding.Message)
+            ex.Message)
         Finally
             connection.Dispose()
         End Try
+    End Sub
+
+    Private Sub writeOutput(internalTable As DataTable)
+        Dim row As DataRow
+        ListBox1.Items.Clear()
+        For Each row In internalTable.Rows
+            ListBox1.Items.Add(String.Format("{0}, {1} {2}", row("id"), row("fornavn"), row("etternavn")))
+        Next row
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        connectAndWrite(String.Format("SELECT * FROM personer WHERE fornavn LIKE ""%{0}%""", TextBox1.Text))
+    End Sub
+
+    Private Sub Button4_Click(sender As Object, e As EventArgs) Handles Button4.Click
+        connectAndWrite(String.Format("SELECT * FROM personer WHERE epost LIKE ""%{0}%""", TextBox2.Text))
     End Sub
 End Class
